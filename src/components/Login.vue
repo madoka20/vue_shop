@@ -7,7 +7,7 @@
             <img src="../assets/logo.png" alt="">
         </div>
         <!-- 表单区域 -->
-        <el-form :rules="loginFormRules" :model="loginForm" class="login_form" label-width="0px">
+        <el-form ref="loginFormRef" :rules="loginFormRules" :model="loginForm" class="login_form" label-width="0px">
             <!-- 用户名 -->
   <el-form-item prop="username">
     <el-input v-model="loginForm.username" prefix-icon="el-icon-user" placeholder="username" clearable></el-input>
@@ -19,7 +19,7 @@
   <!-- 按钮 -->
    <el-form-item class="btns">
     <el-button type="primary">登录</el-button>
-     <el-button type="info">重置</el-button>
+     <el-button type="info" @click="resetLoginForm">重置</el-button>
   </el-form-item>
         </el-form>
     </div>
@@ -30,8 +30,8 @@ export default {
   data () {
     return {
       loginForm: {
-        username: 'madoka',
-        password: '123456'
+        username: '',
+        password: ''
       },
       loginFormRules: {
         username: [
@@ -43,6 +43,11 @@ export default {
           { min: 6, max: 15, message: '长度在6到15个字符', trigger: 'blur' }
         ]
       }
+    }
+  },
+  methods: {
+    resetLoginForm () {
+      this.$refs.loginFormRef.resetFields()
     }
   }
 }
