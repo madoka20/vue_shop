@@ -1,3 +1,4 @@
+/* eslint-disable */
 <template>
 <div class="login_container">
     <div class="login_box">
@@ -6,13 +7,13 @@
             <img src="../assets/logo.png" alt="">
         </div>
         <!-- 表单区域 -->
-        <el-form :model="loginForm" class="login_form" label-width="0px">
+        <el-form :rules="loginFormRules" :model="loginForm" class="login_form" label-width="0px">
             <!-- 用户名 -->
-  <el-form-item >
+  <el-form-item prop="username">
     <el-input v-model="loginForm.username" prefix-icon="el-icon-user" placeholder="username" clearable></el-input>
   </el-form-item>
   <!-- 密码 -->
-  <el-form-item >
+  <el-form-item prop="password">
     <el-input type="password" v-model="loginForm.password" prefix-icon="el-icon-lock" placeholder="password" clearable></el-input>
   </el-form-item>
   <!-- 按钮 -->
@@ -31,6 +32,16 @@ export default {
       loginForm: {
         username: 'madoka',
         password: '123456'
+      },
+      loginFormRules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在3到10个字符', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 6, max: 15, message: '长度在6到15个字符', trigger: 'blur' }
+        ]
       }
     }
   }
