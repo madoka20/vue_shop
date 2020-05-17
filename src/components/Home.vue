@@ -18,12 +18,20 @@
     <!-- 页面主体 -->
     <el-container>
       <!-- 侧边栏 -->
-      <el-aside width="200px">
+      <el-aside :width="isCollapse ? '64px':'200px'">
+        <div
+          class="toggle-button"
+          @click="toggleCollapse"
+        >|||</div>
         <!-- 侧边栏菜单 -->
         <el-menu
           background-color="#333744"
           text-color="#fff"
           active-text-color="#409EFF"
+          :unique-opened="true"
+          :collapse="isCollapse"
+          :collapse-transition="false"
+          :router="true"
         >
           <!-- 一级菜单 -->
           <el-submenu
@@ -34,13 +42,16 @@
             <!-- 一级菜单模板 -->
             <template slot="title">
               <!-- 图标 -->
-              <i :class="iconsObj[item.id]" class="listIcon"></i>
+              <i
+                :class="iconsObj[item.id]"
+                class="listIcon"
+              ></i>
               <!-- 文本 -->
               <span>{{item.authName}}</span>
             </template>
             <!-- 二级菜单 -->
             <el-menu-item
-              :index="subItem.id+ ''"
+              :index="'/'+subItem.path"
               v-for="subItem in item.children"
               :key="subItem.id"
             >
@@ -55,7 +66,10 @@
         </el-menu>
       </el-aside>
       <!-- 右侧内容 -->
-      <el-main>Main</el-main>
+      <el-main>
+        <!-- 路由占位符 -->
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 
@@ -72,7 +86,9 @@ export default {
         101: 'el-icon-s-goods',
         102: 'el-icon-s-order',
         145: 'el-icon-s-marketing'
-      }
+      },
+      // 默认不折叠
+      isCollapse: false
     }
   },
   created() {
@@ -89,6 +105,10 @@ export default {
       if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
       this.menulist = res.data
       console.log(this.menulist)
+    },
+    // 点击按钮切换菜单折叠/展开
+    toggleCollapse() {
+      this.isCollapse = !this.isCollapse
     }
   }
 }
@@ -120,11 +140,23 @@ export default {
 
 .el-aside {
   background-color: #333744;
+  .el-menu {
+    border-right: none;
+  }
 }
-.listIcon{
+.listIcon {
   margin-right: 10px;
 }
 .el-main {
   background-color: #eaedf1;
+}
+.toggle-button {
+  background-color: #4a5064;
+  font-size: 10px;
+  line-height: 24px;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 0.2em;
+  cursor: pointer;
 }
 </style>
