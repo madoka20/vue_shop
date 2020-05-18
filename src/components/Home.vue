@@ -32,6 +32,7 @@
           :collapse="isCollapse"
           :collapse-transition="false"
           :router="true"
+          :default-active="activePath"
         >
           <!-- 一级菜单 -->
           <el-submenu
@@ -54,6 +55,7 @@
               :index="'/'+subItem.path"
               v-for="subItem in item.children"
               :key="subItem.id"
+              @click="saveNavState('/'+subItem.path)"
             >
               <template slot="title">
                 <!-- 图标 -->
@@ -88,11 +90,13 @@ export default {
         145: 'el-icon-s-marketing'
       },
       // 默认不折叠
-      isCollapse: false
+      isCollapse: false,
+      activePath: ''
     }
   },
   created() {
     this.getMenuList()
+    this.activePath = window.sessionStorage.getItem('activePath')
   },
   methods: {
     logout() {
@@ -109,6 +113,11 @@ export default {
     // 点击按钮切换菜单折叠/展开
     toggleCollapse() {
       this.isCollapse = !this.isCollapse
+    },
+    // 保存链接激活状态
+    saveNavState(activePath) {
+      window.sessionStorage.setItem('activePath', activePath)
+      this.activePath = activePath
     }
   }
 }
