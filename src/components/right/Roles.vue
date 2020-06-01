@@ -351,14 +351,19 @@ export default {
       this.addRoleDialogVisible = true
     },
     // 调用接口添加角色
-    async addRole() {
-      const { data: res } = await this.$http.post('roles', this.newRole)
-      if (res.meta.status !== 201) {
-        return this.$message.error('添加角色失败！')
-      }
-      this.$message.success('添加角色成功！')
-      this.addRoleDialogVisible = false
-      this.getRolesList()
+    addRole() {
+      this.$refs.addRoleFormRef.validate(async valid => {
+        if (!valid) {
+          return
+        }
+        const { data: res } = await this.$http.post('roles', this.newRole)
+        if (res.meta.status !== 201) {
+          return this.$message.error('添加角色失败！')
+        }
+        this.$message.success('添加角色成功！')
+        this.getRolesList()
+        this.addRoleDialogVisible = false
+      })
     },
     // 添加角色对话框关闭时
     addRoleDialogClosed() {
