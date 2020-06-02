@@ -66,17 +66,19 @@
         <!-- 操作 -->
         <template
           slot="opt"
-          slot-scope=""
+          slot-scope="scope"
         >
           <el-button
             type="primary"
             icon="el-icon-edit"
             size="mini"
+            @click="showEditCateDialog(scope.row)"
           >编辑</el-button>
           <el-button
             type="danger"
             icon="el-icon-delete"
             size="mini"
+            @click="removeCateById(scope.row.cat_id)"
           >删除</el-button>
         </template>
       </tree-table>
@@ -143,6 +145,38 @@
         >确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 编辑分类对话框 -->
+    <el-dialog
+      title="编辑分类"
+      :visible.sync="editCateDialogVisible"
+      width="50%"
+      @close="editCateFormClosed"
+    >
+      <!-- 编辑分类表单 -->
+      <el-form
+        :model="editCateForm"
+        :rules="editCateFormRules"
+        ref="editCateFormRef"
+        label-width="100px"
+      >
+        <el-form-item
+          label="分类名称"
+          prop="cat_name"
+        >
+          <el-input v-model="editCateForm.cat_name"></el-input>
+        </el-form-item>
+      </el-form>
+      <span
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button @click="editCateDialogVisible = false">取 消</el-button>
+        <el-button
+          type="primary"
+          @click="editCate"
+        >确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -153,7 +187,7 @@ export default {
       queryInfo: {
         type: 3,
         pagenum: 1,
-        pagesize: 5
+        pagesize: 11
       },
       // 商品分类数据列表
       cateList: [],
@@ -213,7 +247,21 @@ export default {
         children: 'children'
       },
       // 选中的父级分类id数组(一级,二级)
-      selectedKeys: []
+      selectedKeys: [],
+      // 编辑分类对话框显示隐藏
+      editCateDialogVisible: false,
+      // 编辑分类表单数据
+      editCateForm: {
+        cat_name: ''
+      },
+      // 编辑分类表单规则
+      editCateFormRules: {
+        cat_name: [
+          { required: true, message: '请输入分类名称', trigger: 'blur' }
+        ]
+      },
+      // 要编辑的id
+      editId: ''
     }
   },
   created() {
@@ -300,6 +348,56 @@ export default {
       this.selectedKeys = []
       this.addCateForm.cat_pid = 0
       this.addCateForm.cat_level = 0
+    },
+    // 展示编辑分类对话框
+    showEditCateDialog(item) {
+      this.editCateDialogVisible = true
+      this.editId = item.cat_id
+    },
+    // 发送请求修改分类
+    editCate() {
+      this.$refs.editCateFormRef.validate(async valid => {
+        if (!valid) return
+        const { data: res } = await this.$http.put(
+          `categories/${this.editId}`,
+          this.editCateForm
+        )
+        console.log(res)
+        if (res.meta.status !== 200) {
+          return this.$message.error('编辑分类失败！')
+        }
+        this.$message.success('编辑分类成功！')
+        this.getCateList()
+        this.editCateDialogVisible = false
+      })
+    },
+    // 编辑分类对话框关闭事件,重置表单
+    editCateFormClosed() {
+      this.$refs.editCateFormRef.resetFields()
+      this.editCateForm.cat_name = ''
+      this.editId = 0
+    },
+    // 根据id删除分类
+    async removeCateById(id) {
+      const confirmResult = await this.$confirm(
+        '此操作将永久删除该分类, 是否继续?',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      ).catch(err => err)
+      // 确认则返回"confirm" 取消则返回"cancel"
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+      const { data: res } = await this.$http.delete('categories/' + id)
+      if (res.meta.status !== 200) {
+        return this.$message.error('删除分类失败！')
+      }
+      this.$message.success('删除分类成功！')
+      this.getCateList()
     }
   }
 }
